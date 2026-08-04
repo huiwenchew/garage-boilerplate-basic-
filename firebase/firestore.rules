@@ -60,17 +60,10 @@ service cloud.firestore {
     // notes/{noteId}
     // Each user can only access their own notes.
     match /notes/{noteId} {
-      allow read: if isAuthenticated()
-        && isOwner(resource.data.uid);
-
-      allow create: if isAuthenticated()
-        && isOwner(request.resource.data.uid);
-
-      allow update: if isAuthenticated()
-        && isOwner(resource.data.uid)
-        && request.resource.data.uid == resource.data.uid;
-
-      allow delete: if false; // soft-delete only
+      allow read: if isAuthenticated() && (resource == null || isOwner(resource.data.uid));
+      allow create: if isAuthenticated() && isOwner(request.resource.data.uid);
+      allow update: if isAuthenticated() && (resource != null && isOwner(resource.data.uid)) && request.resource.data.uid == resource.data.uid;
+      allow delete: if false; 
     }
 
     // ── Default deny ───────────────────────────────────────────────────────
